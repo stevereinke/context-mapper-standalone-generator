@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.contextmapper.standalone.example;
+package de.stevereinke.contextmapper;
 
 import org.contextmapper.dsl.cml.CMLResource;
 import org.contextmapper.dsl.generator.ContextMapGenerator;
 import org.contextmapper.dsl.standalone.ContextMapperStandaloneSetup;
 import org.contextmapper.dsl.standalone.StandaloneContextMapperAPI;
-
-import static org.contextmapper.standalone.example.ReadingModelExample.INSURANCE_EXAMPLE_URI;
 
 /**
  * This example shows how you can read your CML model and generate a graphical
@@ -33,18 +31,25 @@ import static org.contextmapper.standalone.example.ReadingModelExample.INSURANCE
  *
  * @author Stefan Kapferer
  */
-public class ContextMapGeneratorExample {
+public class CustomContextMapGenerator {
 
     public static void main(String[] args) {
-        // Setup and loading CML file:
-        StandaloneContextMapperAPI contextMapper = ContextMapperStandaloneSetup.getStandaloneAPI();
-        CMLResource resource = contextMapper.loadCML(INSURANCE_EXAMPLE_URI);
+        // Handle arguments
+        if (args.length < 1) {
+            System.out.println("Missing input argument.");
+        } else {
+            String input = args[0];
 
-        // Create the PlantUML generator
-        ContextMapGenerator generator = new ContextMapGenerator();
+            // Setup and loading CML file:
+            StandaloneContextMapperAPI contextMapper = ContextMapperStandaloneSetup.getStandaloneAPI();
+            CMLResource resource = contextMapper.loadCML(input);
 
-        // Generate the diagrams into 'src-gen'
-        contextMapper.callGenerator(resource, generator);
+            // Create the PlantUML generator
+            ContextMapGenerator generator = new ContextMapGenerator();
+
+            // Generate the diagrams into 'src-gen'
+            contextMapper.callGenerator(resource, generator);
+        }
     }
 
 }

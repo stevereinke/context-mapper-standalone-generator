@@ -2,7 +2,7 @@
 ContextMap InsuranceContextMap {
 	type = SYSTEM_LANDSCAPE
 	state = TO_BE
-	
+
 	/* Add bounded contexts to this context map: */
 	contains CustomerManagementContext
 	contains CustomerSelfServiceContext
@@ -10,27 +10,27 @@ ContextMap InsuranceContextMap {
 	contains PolicyManagementContext
 	contains RiskManagementContext
 	contains DebtCollection
-	
-	/* Define the context relationships: */ 
+
+	/* Define the context relationships: */
 
 	CustomerSelfServiceContext [D,C]<-[U,S] CustomerManagementContext : Customer_Frontend_Backend_Relationship { // Relationship name is optional
 		exposedAggregates = Customers
 	}
-	
+
 	CustomerManagementContext [D,ACL]<-[U,OHS,PL] PrintingContext {
 		implementationTechnology = "SOAP"
 		downstreamRights = INFLUENCER
 		exposedAggregates = Printing
 	}
-	
+
 	PrintingContext [U,OHS,PL]->[D,ACL] PolicyManagementContext {
 		implementationTechnology = "SOAP"
 		exposedAggregates = Printing
 	}
-	
+
 	RiskManagementContext [P]<->[P] PolicyManagementContext {
 		implementationTechnology = "RabbitMQ"
-	}	
+	}
 
 	PolicyManagementContext [D,CF]<-[U,OHS,PL] CustomerManagementContext {
 		implementationTechnology = "RESTfulHTTP"
@@ -50,7 +50,7 @@ ContextMap InsuranceContextMap {
 	PolicyManagementContext [SK]<->[SK] DebtCollection {
 		implementationTechnology = "Shared Java Library, Communication over RESTful HTTP"
 	}
-	
+
 }
 
 /* Bounded Context Definitions */
@@ -59,31 +59,31 @@ BoundedContext CustomerManagementContext implements CustomerManagementDomain {
 	domainVisionStatement = "The customer management context is responsible for managing all the data of the insurance companies customers."
 	implementationTechnology = "Java, JEE Application"
 	responsibilities = "Customers, Addresses"
-	
+
 	Aggregate Customers {
-		Entity Customer { 
+		Entity Customer {
 			aggregateRoot
-			
+
 			- SocialInsuranceNumber sin
 			String firstname
 			String lastname
 			- List<Address> addresses
-			
+
 			def AddressId createAddress(@Address address);
 			def boolean changeCustomer(String firstname, String lastname);
 		}
-		
+
 		Entity Address {
 			String street
 			int postalCode
 			String city
 		}
-		
+
 		ValueObject SocialInsuranceNumber {
 			String sin key
 		}
 	}
-	
+
 }
 
 BoundedContext CustomerSelfServiceContext implements CustomerManagementDomain {
@@ -91,20 +91,20 @@ BoundedContext CustomerSelfServiceContext implements CustomerManagementDomain {
 	domainVisionStatement = "This context represents a web application which allows the customer to login and change basic data records like the address."
 	responsibilities = "AddressChange"
 	implementationTechnology = "PHP Web Application"
-	
+
 	Aggregate CustomerFrontend {
 		Entity CustomerAddressChange {
 			aggregateRoot
-			
+
 			- UserAccount issuer
 			- Address changedAddress
 		}
 	}
-	
+
 	Aggregate Acounts {
 		Entity UserAccount {
 			aggregateRoot
-			
+
 			String username
 			- Customer accountCustomer
 		}
@@ -115,28 +115,28 @@ BoundedContext PrintingContext implements PrintingDomain {
 	type = SYSTEM
 	responsibilities = "Document Printing"
 	domainVisionStatement = "An external system which provides printing services to the other Bounded Contexts."
-	
+
 	Aggregate Printing {
 		Entity PrintingJob {
 			aggregateRoot
-			
+
 			int printingId
 			- Document document
 			- Template template
-			
+
 			def PrintStatus printJob(PrintingId printingId);
 		}
-		
+
 		Entity Document {
 			DomainObject source
 			String template
 		}
 	}
-	
+
 	Aggregate Templating {
 		Entity Template {
 			aggregateRoot
-			
+
 			int templateId
 			String templateName
 		}
@@ -148,7 +148,7 @@ BoundedContext PolicyManagementContext implements PolicyManagementDomain {
 	domainVisionStatement = "This bounded context manages the contracts and policies of the customers."
 	responsibilities = "Offers, Contracts, Policies"
 	implementationTechnology = "Java, Spring App"
-	
+
 	Aggregate Offers {
 		owner ContractsTeam
 

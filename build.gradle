@@ -1,10 +1,8 @@
 plugins {
   id "java"
-  id "eclipse"
-  id "org.xtext.builder" version "3.0.2"
 }
 
-group = 'org.contextmapper'
+group = 'de.stevereinke.contextmapper'
 version = '1.0.0-SNAPSHOT'
 
 sourceCompatibility = '11'
@@ -16,34 +14,21 @@ repositories {
 }
 
 dependencies {
-    xtextLanguages "org.contextmapper:context-mapper-dsl:${cmlVersion}"
-
-    implementation "org.eclipse.xtend:org.eclipse.xtend.lib:${xtendLibVersion}"
+    implementation "org.eclipse.xtext:org.eclipse.xtext.generator:${xtextLibVersion}"
     implementation "org.contextmapper:context-mapper-dsl:${cmlVersion}"
-
-    implementation "commons-lang:commons-lang:${commonsLangVersion}"
-    implementation "commons-cli:commons-cli:${commonsCliVersion}"
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
 }
 
-xtext {
-    languages {
-        cml {
-            fileExtension = 'cml'
-            setup = 'org.contextmapper.dsl.ContextMappingDSLStandaloneSetup'
-            generator.outlet.producesJava = true
-        }
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'de.stevereinke.contextmapper.CustomContextMapGenerator'
+        )
     }
-
-    sourceSets {
-        main {
-            srcDir 'src/main/cml'
-        }
-    }
-}
-
-test {
-    useJUnitPlatform()
+    from {
+        configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+    } { exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA' }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
